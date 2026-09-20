@@ -1,0 +1,62 @@
+{
+  "name": "originalcompany-home",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "setup:push": "node scripts/setup-push.mjs",
+    "check:services": "node --import tsx scripts/check-services.mjs",
+    "test:setup": "node --import tsx --test scripts/check-services.test.mjs",
+    "setup:site": "node --conditions=react-server --import tsx scripts/setup-site.ts",
+    "test:media:live": "node --conditions=react-server --import tsx scripts/verify-live-media.ts",
+    "setup:admin": "node --conditions=react-server --import tsx scripts/setup-admin.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
+    "@supabase/supabase-js": "^2.116.0",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.4.0",
+    "lucide-react": "^1.47.0",
+    "negotiator": "^1.1.0",
+    "next": "16.3.5",
+    "next-intl": "^4.14.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-hook-form": "^7.88.0",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.4",
+    "sonner": "^2.0.8",
+    "web-push": "^3.6.7",
+    "zod": "^4.6.5"
+  },
+  "overrides": {
+    "gaxios": {
+      "uuid": "^11.1.1"
+    }
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/negotiator": "^0.6.5",
+    "@types/node": "^24.13.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "jsdom": "^30.1.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.0.1"
+  }
+}

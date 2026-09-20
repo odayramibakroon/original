@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "title": "Biscuits and cakes with uncompromising quality",
+    "description": "A specialized factory producing biscuits, cookies, and cakes with high quality and distinctive taste."
+  },
+  "language": { "label": "Language" },
+  "validation": {
+    "emailInvalid": "Enter a valid email address.",
+    "emailLong": "Your email address is too long.",
+    "nameShort": "Your name must contain at least two characters.",
+    "nameLong": "Your name is too long.",
+    "phoneShort": "Your phone number is incomplete.",
+    "phoneLong": "Your phone number is too long.",
+    "phoneInvalid": "Enter a valid phone number.",
+    "messageShort": "Please write at least ten characters.",
+    "messageLong": "Your message is too long."
+  },
+  "contact": {
+    "success": "Your message has been sent successfully.",
+    "rateLimited": "We received several messages from you. Please wait before trying again."
+  },
+  "admin": {
+    "title": "Contact messages",
+    "login": "Admin sign in",
+    "email": "Email address",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "signOut": "Sign out",
+    "loginError": "Unable to sign in. Check your credentials and admin access.",
+    "home": "Website",
+    "empty": "No messages yet.",
+    "name": "Name",
+    "phone": "Phone number",
+    "message": "Message",
+    "date": "Received",
+    "status": "Status",
+    "new": "New",
+    "read": "Read",
+    "replied": "Replied",
+    "save": "Save status",
+    "saved": "Status saved.",
+    "refresh": "Refresh",
+    "more": "Older messages",
+    "previous": "Latest messages",
+    "open": "Open message",
+    "back": "All messages",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "unavailable": "Unable to load messages. Please try again.",
+    "notFound": "Message not found.",
+    "forbidden": "This account does not have admin access.",
+    "setupRequired": "Admin services have not been configured yet."
+  },
+  "push": {
+    "enable": "Enable notifications",
+    "disable": "Disable notifications on this device",
+    "enabled": "Notifications enabled on this device",
+    "disabled": "Notifications disabled on this device",
+    "unsupported": "Notifications are unavailable here. On iPhone, add the site to your Home Screen and open it there.",
+    "denied": "Notifications are blocked. Allow them in your browser's site settings.",
+    "error": "Unable to update notifications. Please try again.",
+    "unconfigured": "Notifications have not been configured yet.",
+    "test": "Send test notification",
+    "testSent": "Test notification sent.",
+    "testTitle": "Admin notifications",
+    "testBody": "This device is ready to receive new message notifications.",
+    "title": "New contact message",
+    "body": "You have a new message. Open your inbox to read it."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again."
+  }
+}

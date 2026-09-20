@@ -1,0 +1,16 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Preserve the existing project's policy outside this standalone website.
+    // The legacy collections are still public and require a separate security review.
+    match /{collection}/{document=**} {
+      allow read, write: if collection != 'websites';
+    }
+    match /websites/{site} {
+      allow read, write: if site != 'originalcompany';
+      match /{document=**} {
+        allow read, write: if site != 'originalcompany';
+      }
+    }
+    // All originalcompany access goes through the server's authorized Admin SDK.
+  }
+}
