@@ -1,8 +1,8 @@
 import "server-only";
-import { Timestamp, type DocumentData, type QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { FieldValue, Timestamp, type DocumentData, type QueryDocumentSnapshot } from "firebase-admin/firestore";
 import { getAdminDb } from "@/core/firebase/admin";
 import { normalizeError, ErrorCode } from "@/core/errors";
-import { messageIdSchema, messageQuerySchema, matchesMessage, deleteMessagesSchema, type MessageQuery } from "../domain/message-query";
+import { messageIdSchema, selectedMessagesSchema, messageQuerySchema, matchesMessage, deleteMessagesSchema, type MessageQuery } from "../domain/message-query";
 
 export { messageIdSchema } from "../domain/message-query";
 export type AdminMessage = {
@@ -76,4 +76,22 @@ export async function getContactMessage(id: string) {
   } catch (error) {
     throw normalizeError(error, ErrorCode.DATABASE_ERROR);
   }
+}
+
+export async function markContactMessagesRead(input: unknown, uid: string) {
+  const ids = [...new Set(selectedMessagesSchema.parse(input))];
+  try {
+    const db = getAdminDb();
+    return await db.runTransaction(async (transaction) => {
+      const snapshots = await transaction.getAll(...ids.map((id) => db.doc(`contactMessages/${id}`)));
+      let updated = 0;
+      for (const snapshot of snapshots) {
+        // A replied message already counts as read; never downgrade its workflow status.
+        if (!snapshot.exists || snapshot.data()?.status === "read" || snapshot.data()?.status === "replied") continue;
+        transaction.update(snapshot.ref, { status: "read", updatedAt: FieldValue.serverTimestamp(), updatedBy: uid });
+        updated++;
+      }
+      return { updated };
+    });
+  } catch (error) { throw normalizeError(error, ErrorCode.DATABASE_ERROR); }
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Package, PanelsTopLeft, Image, Sparkles, Factory, MapPin, Share2, Mail, Images, Settings, Menu, X, AlignVerticalJustifyStart, PanelTop, PanelBottom } from "lucide-react";
+import { LayoutDashboard, Package, PanelsTopLeft, Image, Sparkles, Factory, MapPin, Share2, Mail, Images, Settings, UserRoundCog, Menu, X, AlignVerticalJustifyStart, PanelTop, PanelBottom } from "lucide-react";
 
 const entries = [
   ["/admin", "dashboard", LayoutDashboard], ["/admin/products", "products", Package],
@@ -13,6 +13,7 @@ const entries = [
   ["/admin/content/layout", "layout", AlignVerticalJustifyStart], ["/admin/content/contact", "contact", Mail],
   ["/admin/branches", "branches", MapPin], ["/admin/socials", "socials", Share2],
   ["/admin/messages", "messages", Mail], ["/admin/media", "media", Images], ["/admin/settings", "settings", Settings],
+  ["/admin/account", "account", UserRoundCog],
 ] as const;
 
 export function AdminSidebar() {

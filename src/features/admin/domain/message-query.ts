@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const messageIdSchema = z.string().regex(/^[A-Za-z0-9]{20}$/);
+export const selectedMessagesSchema = z.array(messageIdSchema).min(1).max(100);
 export const messageQuerySchema = z.object({
   q: z.string().trim().max(120).default(""),
   status: z.enum(["all", "new", "read", "replied"]).default("all"),
@@ -8,7 +9,7 @@ export const messageQuerySchema = z.object({
 });
 export type MessageQuery = z.infer<typeof messageQuerySchema>;
 export const deleteMessagesSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("selected"), ids: z.array(messageIdSchema).min(1).max(100) }),
+  z.object({ mode: z.literal("selected"), ids: selectedMessagesSchema }),
   z.object({ mode: z.literal("all"), before: z.number().int().positive().refine((value) => value <= Date.now()) }),
 ]);
 

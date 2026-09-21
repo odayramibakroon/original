@@ -1,14 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import {
   createContactFormSchema,
   type ContactFormInput,
+  type ContactFormFields,
 } from "@/core/validation/contact";
 import { submitContactMessage } from "@/features/contact/application/submit-contact-message";
+import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, parseContactPhone } from "@/core/utils/phone";
+import { getCountryCallingCode } from "libphonenumber-js/min";
 
 type ContactFormProps = {
   labels: {
@@ -27,6 +30,11 @@ export function ContactForm({ labels }: ContactFormProps) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("common");
+  const contact = useTranslations("contact");
+  const countries = useMemo(() => {
+    const names = new Intl.DisplayNames([locale], { type: "region" });
+    return PHONE_COUNTRIES.map((code) => ({ code, name: names.of(code) || code, dial: getCountryCallingCode(code) })).sort((a, b) => a.name.localeCompare(b.name, locale));
+  }, [locale]);
   const schema = createContactFormSchema(messages.validation as Parameters<typeof createContactFormSchema>[0]);
   const [isPending, startTransition] = useTransition();
   const [resultMessage, setResultMessage] = useState<string | null>(null);
@@ -37,10 +45,12 @@ export function ContactForm({ labels }: ContactFormProps) {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
-  } = useForm<ContactFormInput>({
+  } = useForm<ContactFormFields, unknown, ContactFormInput>({
     resolver: zodResolver(schema),
     mode: "onBlur",
+    defaultValues: { country: DEFAULT_PHONE_COUNTRY, name: "", email: "", phone: "", message: "" },
   });
 
   function onSubmit(values: ContactFormInput) {
@@ -84,21 +94,41 @@ export function ContactForm({ labels }: ContactFormProps) {
         {errors.email && <small id="contact-email-error" className="form-error">{errors.email.message}</small>}
       </label>
 
-      <label>
+      <div>
+        <div className="contact-phone-fields">
+        <label className="contact-country">
+          <span className="sr-only">{contact("countryCode")}</span>
+          <select autoComplete="tel-country-code" aria-label={contact("countryCode")} disabled={isPending} {...register("country")}>
+            {countries.map(({ code, name, dial }) => <option key={code} value={code}>{name} (+{dial})</option>)}
+          </select>
+        </label>
+        <label className="contact-national-phone">
         <span className="sr-only">{labels.phonePlaceholder}</span>
         <input
           type="tel"
           dir={locale === "ar" ? "rtl" : "ltr"}
           inputMode="tel"
-          autoComplete="tel"
+          autoComplete="tel-national"
           placeholder={labels.phonePlaceholder}
           aria-invalid={Boolean(errors.phone)}
-          {...register("phone")}
+          aria-describedby={errors.phone ? "contact-phone-error" : undefined}
+          {...register("phone", { onChange: (event) => {
+            const value = String(event.target.value).trim();
+            if (!/^(\+|00|٠٠|۰۰)/.test(value)) return;
+            const parsed = parseContactPhone(value);
+            if (parsed?.country && parsed.isPossible()) {
+              setValue("country", parsed.country, { shouldDirty: true });
+              setValue("phone", parsed.nationalNumber, { shouldDirty: true });
+            }
+          } })}
         />
+        </label>
+        </div>
         {errors.phone ? (
-          <small className="form-error">{errors.phone.message}</small>
+          <small id="contact-phone-error" className="form-error">{errors.phone.message}</small>
         ) : null}
-      </label>
+        {errors.country && <small className="form-error">{errors.country.message}</small>}
+      </div>
 
       <label>
         <span className="sr-only">{labels.messagePlaceholder}</span>

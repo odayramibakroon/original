@@ -7,6 +7,8 @@ import { inMemoryPersistence, setPersistence, signInWithEmailAndPassword, signOu
 import { LogIn } from "lucide-react";
 import { getFirebaseAuth } from "@/core/firebase/client";
 import { createAdminSession } from "../application/auth-actions";
+import { syncCurrentPush } from "@/features/notifications/presentation/sync-current-push";
+import { logger } from "@/core/logger";
 
 export function LoginForm({ next, configured }: { next: string; configured: boolean }) {
   const t = useTranslations("admin");
@@ -27,6 +29,8 @@ export function LoginForm({ next, configured }: { next: string; configured: bool
         await signOut(auth);
         const result = await createAdminSession(token);
         if (!result.ok) { setMessage(result.message); return; }
+        try { if (!await syncCurrentPush()) logger.warn("Device notifications need reconnecting."); }
+        catch { logger.warn("Device notifications need reconnecting."); }
         router.replace(next);
         router.refresh();
       } catch {

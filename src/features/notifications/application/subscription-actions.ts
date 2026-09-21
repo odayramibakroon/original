@@ -16,7 +16,12 @@ export async function updatePushSubscription(input: unknown, enabled: boolean) {
     const reference = getAdminDb().doc(`adminPushSubscriptions/${subscriptionId(subscription.endpoint)}`);
     if (enabled) {
       if (!pushConfigured()) return { ok: false, message: t("unconfigured") };
-      await reference.set({ ...subscription, uid: admin.uid, locale: await getLocale(), updatedAt: FieldValue.serverTimestamp() });
+      const locale = await getLocale();
+      await getAdminDb().runTransaction(async (transaction) => {
+        const [profile, session] = await transaction.getAll(getAdminDb().doc(`users/${admin.uid}`), getAdminDb().doc(`adminSessions/${admin.sessionId}`));
+        if (!session.exists || session.data()?.version !== (profile.data()?.sessionVersion ?? 0)) throw new Error("Session has ended.");
+        transaction.set(reference, { ...subscription, uid: admin.uid, sessionId: admin.sessionId, locale, updatedAt: FieldValue.serverTimestamp() });
+      });
     } else {
       const existing = await reference.get();
       if (existing.exists && existing.data()?.uid !== admin.uid) throw new Error("Subscription belongs to another user.");

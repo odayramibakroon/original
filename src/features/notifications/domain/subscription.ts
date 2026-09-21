@@ -25,4 +25,5 @@ export const subscriptionSchema = z.object({
 export type AdminSubscription = z.infer<typeof subscriptionSchema> & {
   uid: string;
   locale: "ar" | "en";
+  sessionId?: string;
 };

@@ -3,6 +3,7 @@ import webpush from "web-push";
 import { createHash } from "node:crypto";
 import { getAdminDb, getAdminAuth } from "@/core/firebase/admin";
 import { isActiveAdmin } from "@/core/auth/roles";
+import { isDeviceId } from "@/core/auth/session-registry";
 import { requireEnv } from "@/core/config/env";
 import { isAllowedPushEndpoint, type AdminSubscription } from "../domain/subscription";
 import ar from "../../../../messages/ar.json";
@@ -41,7 +42,7 @@ export async function sendPush(subscription: AdminSubscription, id?: string) {
 export async function getActiveSubscriptions() {
   const db = getAdminDb();
   const snapshots = await db.collection("adminPushSubscriptions").get();
-  const allowed = new Map<string, boolean>();
+  const allowed = new Map<string, { active: boolean; version: number; tokensValidAfter: number }>();
   const result: Array<{ id: string; subscription: AdminSubscription }> = [];
   for (const document of snapshots.docs) {
     const subscription = document.data() as AdminSubscription;
@@ -53,9 +54,15 @@ export async function getActiveSubscriptions() {
           throw error;
         }),
       ]);
-      allowed.set(subscription.uid, isActiveAdmin(profile.data()) && Boolean(account && !account.disabled));
+      allowed.set(subscription.uid, { active: isActiveAdmin(profile.data()) && Boolean(account && !account.disabled), version: Number(profile.data()?.sessionVersion ?? 0), tokensValidAfter: account?.tokensValidAfterTime ? Date.parse(account.tokensValidAfterTime) : 0 });
     }
-    if (allowed.get(subscription.uid)) result.push({ id: document.id, subscription });
+    const owner = allowed.get(subscription.uid)!;
+    let active = owner.active;
+    if (subscription.sessionId && isDeviceId(subscription.sessionId)) {
+      const session = (await db.doc(`adminSessions/${subscription.sessionId}`).get()).data();
+      active = active && Boolean(session && session.uid === subscription.uid && session.version === owner.version && session.authTime * 1000 >= owner.tokensValidAfter);
+    } else active = active && !subscription.sessionId && owner.version === 0;
+    if (active) result.push({ id: document.id, subscription });
     else await document.ref.delete();
   }
   return result;

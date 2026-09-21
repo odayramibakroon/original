@@ -9,7 +9,15 @@ import { FieldValue } from "firebase-admin/firestore";
 import { messageIdSchema } from "../infrastructure/messages";
 import { logger } from "@/core/logger";
 import { adminAction } from "@/core/auth/admin-action";
-import { deleteContactMessages } from "../infrastructure/messages";
+import { deleteContactMessages, markContactMessagesRead } from "../infrastructure/messages";
+
+export async function markMessagesRead(ids: unknown) {
+  return adminAction(async (admin) => {
+    const result = await markContactMessagesRead(ids, admin.uid);
+    revalidatePath("/admin"); revalidatePath("/admin/messages", "layout");
+    return result;
+  });
+}
 
 export async function deleteMessages(input: unknown) {
   return adminAction(async () => {

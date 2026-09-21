@@ -1,4 +1,5 @@
 {
+  "account": "Account settings",
   "contactProtection": "Contact protection",
   "dailyMessagesPerIp": "Messages per IP per day (Riyadh time)",
   "numberRange": "Enter a whole number between {min} and {max}.",

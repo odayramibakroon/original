@@ -69,6 +69,13 @@
 .blocked-ip-list bdi, .message-ip { overflow-wrap: anywhere; }
 .message-ip { display: inline-block; min-width: 100px; max-width: 220px; }
 .message-delete-tools > span, .media-limit { font-size: 12px; color: var(--admin-muted); }
+.message-row { cursor: pointer; }
+.message-row:hover, .message-row:focus-visible { background: var(--admin-hover); }
+.account-section { max-width: 680px; }
+.account-form { display: grid; gap: 20px; max-width: 520px; }
+.account-password { display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: center; gap: 8px; margin-top: 8px; }
+.account-password .admin-icon { width: 44px; height: 44px; }
+.account-section .admin-button { max-width: 100%; }
 .spin { animation: admin-spin 1s linear infinite; }
 @keyframes admin-spin { to { transform: rotate(360deg); } }
 .admin-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-block: 24px 32px; }

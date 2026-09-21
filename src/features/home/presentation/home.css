@@ -613,6 +613,7 @@
 }
 
 .contact-form input,
+.contact-form select,
 .contact-form textarea {
   text-align: start;
   background: rgba(255, 255, 255, 0.08);
@@ -635,6 +636,10 @@
 
 .contact-form input[type="tel"][dir="rtl"] { direction: rtl; text-align: right; }
 .contact-form input[type="tel"][dir="ltr"] { direction: ltr; text-align: left; }
+.contact-phone-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; }
+.contact-phone-fields label, .contact-phone-fields input, .contact-phone-fields select { min-width: 0; width: 100%; }
+.contact-phone-fields select { font-size: 12px; padding-inline: 10px; cursor: pointer; }
+.contact-phone-fields option { color: var(--color-text); background: var(--color-white); }
 
 .language-switcher { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; font-size: 12px; }
 .language-switcher select { cursor: pointer; font: inherit; background: transparent; color: inherit; border: 0; padding: 6px 0; max-width: 90px; }
@@ -653,6 +658,7 @@ html[dir="ltr"] .hero-card { left: auto; right: min(8vw, 120px); }
 }
 
 .contact-form input:focus,
+.contact-form select:focus,
 .contact-form textarea:focus {
   background: rgba(255, 255, 255, 0.12);
   border-color: var(--color-orange);

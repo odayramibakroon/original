@@ -1,4 +1,5 @@
 {
+  "account": "إعدادات الحساب",
   "contactProtection": "حماية نموذج التواصل",
   "dailyMessagesPerIp": "الرسائل المسموحة لكل IP يومياً (بتوقيت الرياض)",
   "numberRange": "أدخل عدداً صحيحاً بين {min} و{max}.",

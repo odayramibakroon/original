@@ -3,10 +3,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
-import { Search, Trash2, X, LoaderCircle } from "lucide-react";
+import { Search, Trash2, X, LoaderCircle, MailOpen } from "lucide-react";
 import type { AdminMessage } from "../infrastructure/messages";
 import { messageListHref, type MessageQuery } from "../domain/message-query";
-import { deleteMessages } from "../application/message-actions";
+import { deleteMessages, markMessagesRead } from "../application/message-actions";
 import { Dialog } from "@/shared/components/Dialog";
 import { DeleteButton } from "@/shared/components/DeleteButton";
 import { IpBlockButton } from "@/features/site-settings/presentation/OperationalSettings";
@@ -55,6 +55,14 @@ export function MessageInbox({ messages, next, before, filter, blockedIps }: {
     </form>
     <div className="admin-toolbar message-delete-tools">
       <span>{t("selectedMessages", { count: chosen.length })}</span>
+      <button type="button" className="admin-button" disabled={!chosen.length || pending} onClick={() => startTransition(async () => {
+        setMessage("");
+        try {
+          const result = await markMessagesRead(chosen);
+          setMessage(result.ok ? t("markedRead", { count: result.data.updated }) : result.message);
+          if (result.ok) { setSelected([]); router.refresh(); }
+        } catch { setMessage(c("error")); }
+      })}><MailOpen size={17} />{t("markSelectedRead")}</button>
       <button type="button" className="admin-button danger" disabled={!chosen.length || pending} onClick={() => { setMessage(""); setRemoved(0); setMode("selected"); }}><Trash2 size={17} />{t("deleteSelected")}</button>
       <button type="button" className="admin-button danger" disabled={pending} onClick={() => { setMessage(""); setRemoved(0); setMode("all"); }}><Trash2 size={17} />{t("deleteAll")}</button>
     </div>
@@ -62,7 +70,17 @@ export function MessageInbox({ messages, next, before, filter, blockedIps }: {
     {!messages.length ? <p className="admin-empty">{t(filter.q || filter.status !== "all" ? "noMatches" : "empty")}</p> : <div className="admin-table-wrap"><table className="admin-table">
       <thead><tr><th><input type="checkbox" aria-label={t("selectPage")} checked={checked} disabled={pending} onChange={(event) => setSelected(event.target.checked ? messages.map((item) => item.id) : [])} /></th>
         {["name", "email", "phone", "ip", "message", "date", "status", "actions"].map((key) => <th key={key}>{t(key)}</th>)}</tr></thead>
-      <tbody>{messages.map((item) => <tr key={item.id}>
+      <tbody>{messages.map((item) => <tr key={item.id} className="message-row" tabIndex={0} aria-label={t("openMessageFrom", { name: item.name })}
+        onClick={(event) => {
+          if ((event.target as Element).closest("a,button,input,select,label,dialog") || window.getSelection()?.toString()) return;
+          const url = `/admin/messages/${item.id}`;
+          if (event.ctrlKey || event.metaKey) window.open(url, "_blank", "noopener,noreferrer");
+          else router.push(url);
+        }}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget || !["Enter", " "].includes(event.key)) return;
+          event.preventDefault(); router.push(`/admin/messages/${item.id}`);
+        }}>
         <td><input type="checkbox" aria-label={t("selectMessage", { name: item.name })} disabled={pending} checked={chosen.includes(item.id)} onChange={(event) => setSelected(event.target.checked ? [...chosen, item.id] : chosen.filter((id) => id !== item.id))} /></td>
         <td><Link href={`/admin/messages/${item.id}`}>{item.name}</Link></td>
         <td>{item.email ? <a href={`mailto:${item.email}`}><bdi>{item.email}</bdi></a> : "-"}</td>
