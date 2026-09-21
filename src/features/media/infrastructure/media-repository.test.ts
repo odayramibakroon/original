@@ -26,7 +26,7 @@ import { MediaRepository } from "./media-repository";
 
 beforeEach(() => {
   vi.resetAllMocks();
-  mocks.getBucket.mockResolvedValue({ error: null });
+  mocks.getBucket.mockResolvedValue({ data: { public: true, file_size_limit: 500 * 1024 }, error: null });
   mocks.createBucket.mockResolvedValue({ error: null });
   mocks.upload.mockResolvedValue({ error: null });
   mocks.remove.mockResolvedValue({ error: null });
@@ -44,8 +44,22 @@ async function validImage() {
 it("rejects oversized and disguised non-images before touching storage", async () => {
   const repository = new MediaRepository();
   await expect(repository.upload(new File(["not a png"], "fake.png", { type: "image/png" }), "admin")).rejects.toMatchObject({ message: "invalidFile" });
-  await expect(repository.upload(new File([new Uint8Array(MAX_IMAGE_BYTES + 1)], "large.png", { type: "image/png" }), "admin")).rejects.toMatchObject({ message: "invalidFile" });
+  await expect(repository.upload(new File([new Uint8Array(MAX_IMAGE_BYTES + 1)], "large.png", { type: "image/png" }), "admin")).rejects.toMatchObject({ message: "imageTooLarge" });
   expect(mocks.upload).not.toHaveBeenCalled();
+});
+
+it("enforces the current Supabase bucket limit before reading image bytes", async () => {
+  const file = new File([new Uint8Array(500 * 1024 + 1)], "too-large.png", { type: "image/png" });
+  const read = vi.spyOn(file, "arrayBuffer");
+  await expect(new MediaRepository().upload(file, "admin")).rejects.toMatchObject({ message: "imageTooLarge", maxBytes: 512000 });
+  expect(read).not.toHaveBeenCalled();
+  expect(mocks.upload).not.toHaveBeenCalled();
+});
+
+it("reports a storage size rejection instead of a generic failure", async () => {
+  mocks.upload.mockResolvedValue({ error: { statusCode: "413", message: "The object exceeded the maximum allowed size" } });
+  await expect(new MediaRepository().upload(await validImage(), "admin")).rejects.toMatchObject({ message: "imageTooLarge", maxBytes: 512000 });
+  expect(mocks.create).not.toHaveBeenCalled();
 });
 
 it("stores a validated image and its dimensions with a unique path", async () => {

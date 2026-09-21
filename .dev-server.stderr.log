@@ -1,0 +1,23 @@
+
+thread 'tokio-rt-worker' (4076) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 9946882 out of range for slice of length 52
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tokio-rt-worker' (22780) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 3126680536 out of range for slice of length 52
+
+thread 'tokio-rt-worker' (22780) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 9946882 out of range for slice of length 52
+
+thread 'tokio-rt-worker' (3468) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 9946882 out of range for slice of length 52
+
+thread 'tokio-rt-worker' (17308) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 9946882 out of range for slice of length 52
+
+thread 'tokio-rt-worker' (28452) panicked at turbopack\crates\turbo-persistence\src\static_sorted_file.rs:593:22:
+range end index 3126680536 out of range for slice of length 52
+
+turbo-tasks: an internal panic occurred outside the per-task panic boundary. This is a bug in turbo-tasks/Turbopack — please report it at https://github.com/vercel/next.js/discussions and include the panic message and stack trace above.
+
+Aborting.

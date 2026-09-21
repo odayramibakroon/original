@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import sharp from "sharp";
 import { loadEnvConfig } from "@next/env";
 import { deleteApp, getApps } from "firebase-admin/app";
 import { getAdminDb } from "../src/core/firebase/admin";
@@ -22,8 +22,8 @@ async function main() {
   let asset: MediaAsset | undefined;
   let stage = "upload";
   try {
-    const original = await readFile(new URL("../public/ogm.jpg", import.meta.url));
-    asset = await repository.upload(new File([original], "connection-check.jpg", { type: "image/jpeg" }), owner);
+    const original = await sharp({ create: { width: 2, height: 2, channels: 3, background: "#ffffff" } }).png().toBuffer();
+    asset = await repository.upload(new File([new Uint8Array(original)], "connection-check.png", { type: "image/png" }), owner);
     assert.ok(asset.path.startsWith(`${owner}/`));
     stage = "metadata read";
     const document = await db.doc(`media/${asset.id}`).get();

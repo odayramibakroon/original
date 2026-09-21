@@ -2,6 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import en from "../../../../messages/en.json";
 
 const { create, deliver } = vi.hoisted(() => ({ create: vi.fn(), deliver: vi.fn() }));
+vi.mock("@/core/network/request-ip", () => ({ getRequestIp: async () => "203.0.113.10" }));
 vi.mock("next-intl/server", () => ({
   getLocale: async () => "en",
   getMessages: async () => en,
@@ -31,6 +32,6 @@ it("notifies only after successful persistence", async () => {
 it("reports success when saved even if push fails, avoiding duplicate submissions", async () => {
   deliver.mockRejectedValue(new Error("Push unavailable"));
   expect(await submitContactMessage(valid)).toEqual({ ok: true, message: "contact.success" });
-  expect(create).toHaveBeenCalledWith(valid, "en");
+  expect(create).toHaveBeenCalledWith(valid, "en", "203.0.113.10");
   expect(deliver).toHaveBeenCalledWith("message-id");
 });

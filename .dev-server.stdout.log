@@ -1,0 +1,11 @@
+▲ Next.js 16.3.5 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local
+✓ Ready in 744ms
+✓ Running next.config.ts took 101ms
+Creating turbopack project {
+  dir: 'D:\\Flutter\\web\\originalcompany\\originalcompany-home',
+  testMode: true
+}
+[?25h

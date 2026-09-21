@@ -59,6 +59,18 @@
 .admin-table input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; accent-color: var(--admin-accent); cursor: pointer; }
 .admin-section { margin-block: 32px; }
 .admin-section h2 { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+.operational-section { border-top: 1px solid var(--admin-border); padding-top: 28px; }
+.operational-section h3 { font-size: 15px; font-weight: 700; margin: 28px 0 16px; }
+.operational-number { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; max-width: 800px; margin-bottom: 18px; }
+.operational-number label { flex: 1 1 260px; max-width: 500px; min-width: 0; }
+.operational-number [role="status"], .operational-number [role="alert"] { flex-basis: 100%; margin: 0 !important; }
+.blocked-ip-list { max-width: 700px; list-style: none; padding: 0; }
+.blocked-ip-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--admin-border); }
+.blocked-ip-list bdi, .message-ip { overflow-wrap: anywhere; }
+.message-ip { display: inline-block; min-width: 100px; max-width: 220px; }
+.message-delete-tools > span, .media-limit { font-size: 12px; color: var(--admin-muted); }
+.spin { animation: admin-spin 1s linear infinite; }
+@keyframes admin-spin { to { transform: rotate(360deg); } }
 .admin-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-block: 24px 32px; }
 .admin-metric { display: grid; gap: 10px; padding: 20px; background: var(--color-white); border: 1px solid var(--admin-border); border-radius: 6px; }
 .admin-metric span { color: var(--admin-muted); font-size: 12px; }

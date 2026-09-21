@@ -11,8 +11,10 @@ const nextConfig: NextConfig = {
     ] }];
   },
   images: {
+    dangerouslyAllowLocalIP: process.env.NEXT_DIST_DIR === ".next-e2e",
     remotePatterns: [
       ...(process.env.NEXT_PUBLIC_SUPABASE_URL ? [{ protocol: "https" as const, hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname, pathname: "/storage/v1/object/public/**" }] : []),
+      ...(process.env.NEXT_DIST_DIR === ".next-e2e" ? [{ protocol: "http" as const, hostname: "127.0.0.1", port: "54329", pathname: "/storage/v1/object/public/**" }] : []),
       {
         protocol: "https",
         hostname: "images.unsplash.com",

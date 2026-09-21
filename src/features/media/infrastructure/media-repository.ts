@@ -8,7 +8,9 @@ import { getSupabaseServerClient } from "@/core/supabase/server";
 import { createSafeFilename } from "@/core/storage/safe-filename";
 import { AppError, ErrorCode, normalizeError } from "@/core/errors";
 import { logger } from "@/core/logger";
-import { MAX_IMAGE_BYTES, IMAGE_TYPES, type MediaAsset } from "../domain/MediaAsset";
+import { DEFAULT_IMAGE_BYTES, IMAGE_TYPES, type MediaAsset } from "../domain/MediaAsset";
+import { ImageTooLargeError } from "../domain/upload-limit";
+import { MediaPolicyRepository } from "./media-policy-repository";
 
 function containsUrl(value: unknown, url: string): boolean {
   if (typeof value === "string") return value === url;
@@ -29,7 +31,9 @@ export class MediaRepository {
     } catch (error) { throw normalizeError(error, ErrorCode.DATABASE_ERROR); }
   }
   async upload(file: File, uid: string): Promise<MediaAsset> {
-    if (!IMAGE_TYPES.includes(file.type) || !file.size || file.size > MAX_IMAGE_BYTES) throw new AppError(ErrorCode.VALIDATION_ERROR, "invalidFile");
+    if (!IMAGE_TYPES.includes(file.type) || !file.size) throw new AppError(ErrorCode.VALIDATION_ERROR, "invalidFile");
+    const maxBytes = await new MediaPolicyRepository().getLimit();
+    if (file.size > maxBytes) throw new ImageTooLargeError(maxBytes);
     const buffer = Buffer.from(await file.arrayBuffer());
     let info;
     try { info = await sharp(buffer, { limitInputPixels: 40_000_000 }).metadata(); }
@@ -42,12 +46,18 @@ export class MediaRepository {
       const existing = await supabase.storage.getBucket(this.bucket);
       if (existing.data && !existing.data.public) throw new AppError(ErrorCode.STORAGE_ERROR, "Media bucket must allow public reads.");
       if (existing.error) {
-        const created = await supabase.storage.createBucket(this.bucket, { public: true, allowedMimeTypes: IMAGE_TYPES, fileSizeLimit: MAX_IMAGE_BYTES });
+        if (String(existing.error.statusCode) !== "404") throw existing.error;
+        const created = await supabase.storage.createBucket(this.bucket, { public: true, allowedMimeTypes: IMAGE_TYPES, fileSizeLimit: DEFAULT_IMAGE_BYTES });
         if (created.error && created.error.message !== "The resource already exists") throw created.error;
       }
       const storage = supabase.storage.from(this.bucket);
       const upload = await storage.upload(path, buffer, { contentType: mime, cacheControl: "31536000", upsert: false });
-      if (upload.error) throw upload.error;
+      if (upload.error) {
+        if (String(upload.error.statusCode) === "413" || upload.error.message.toLowerCase().includes("maximum allowed size")) {
+          throw new ImageTooLargeError(await new MediaPolicyRepository().getLimit());
+        }
+        throw upload.error;
+      }
       const url = storage.getPublicUrl(path).data.publicUrl;
       const reference = getAdminDb().collection("media").doc();
       const asset = { name: file.name.slice(0, 180), url, path, bytes: buffer.length, width: info.width, height: info.height };

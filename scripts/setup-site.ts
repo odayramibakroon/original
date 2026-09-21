@@ -3,7 +3,7 @@ import { getApps, deleteApp } from "firebase-admin/app";
 import { getAdminDb } from "../src/core/firebase/admin";
 import { SITE_DOCUMENT_PATH } from "../src/core/firebase/site-database";
 import { getSupabaseServerClient } from "../src/core/supabase/server";
-import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "../src/features/media/domain/MediaAsset";
+import { IMAGE_TYPES, DEFAULT_IMAGE_BYTES } from "../src/features/media/domain/MediaAsset";
 import { importOriginalContent } from "../src/features/admin/application/import-original-content";
 
 async function main() {
@@ -25,7 +25,7 @@ async function main() {
     const existing = listed.data.find((item) => item.name === bucket);
     if (existing && !existing.public) throw new Error("The existing media bucket is private; no permissions were changed.");
     if (!existing) {
-      const created = await supabase.storage.createBucket(bucket, { public: true, allowedMimeTypes: IMAGE_TYPES, fileSizeLimit: MAX_IMAGE_BYTES });
+      const created = await supabase.storage.createBucket(bucket, { public: true, allowedMimeTypes: IMAGE_TYPES, fileSizeLimit: DEFAULT_IMAGE_BYTES });
       if (created.error) throw new Error("Could not create the media bucket.");
     }
     console.log("Media bucket is ready. No accounts or legacy root products were changed.");

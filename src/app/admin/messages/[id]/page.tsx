@@ -6,6 +6,8 @@ import { getContactMessage } from "@/features/admin/infrastructure/messages";
 import { MessageStatus } from "@/features/admin/presentation/MessageStatus";
 import { buildWhatsAppUrl } from "@/core/utils/whatsapp";
 import { logger } from "@/core/logger";
+import { ContactPolicyRepository } from "@/features/contact/infrastructure/contact-policy-repository";
+import { IpBlockButton } from "@/features/site-settings/presentation/OperationalSettings";
 
 export default async function Message({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,7 +15,11 @@ export default async function Message({ params }: { params: Promise<{ id: string
   const t = await getTranslations("admin");
   const locale = await getLocale();
   let message;
-  try { message = await getContactMessage(id); }
+  let blocked = false;
+  try {
+    message = await getContactMessage(id);
+    if (message?.ip) blocked = (await new ContactPolicyRepository().blocked()).some((item) => item.ip === message!.ip);
+  }
   catch (error) {
     logger.error("Could not load message.", { error: error instanceof Error ? error.name : "unknown" });
     return <p role="alert">{t("unavailable")}</p>;
@@ -25,6 +31,7 @@ export default async function Message({ params }: { params: Promise<{ id: string
       <div><dt>{t("name")}</dt><dd>{message.name}</dd></div>
       <div><dt>{t("email")}</dt><dd>{message.email ? <a href={`mailto:${message.email}`}><bdi>{message.email}</bdi></a> : "-"}</dd></div>
       <div><dt>{t("phone")}</dt><dd><bdi dir="ltr">{message.phone}</bdi></dd></div>
+      <div><dt>{t("ip")}</dt><dd className="admin-actions"><bdi dir="ltr">{message.ip || t("unknownIp")}</bdi>{message.ip && <IpBlockButton ip={message.ip} blocked={blocked} />}</dd></div>
       <div><dt>{t("date")}</dt><dd>{message.createdAt && new Intl.DateTimeFormat(locale, { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Riyadh" }).format(new Date(message.createdAt))}</dd></div>
       <div><dt>{t("message")}</dt><dd className="message-body">{message.message}</dd></div>
     </dl>

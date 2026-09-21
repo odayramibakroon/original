@@ -13,7 +13,7 @@ export async function adminAction<T>(operation: (admin: { uid: string; email: st
   catch (error) {
     if (error instanceof ZodError) return { ok: false, message: t("invalid"), errors: Object.fromEntries(error.issues.map((issue) => [issue.path.join("."), t("invalid")])) };
     logger.error("Admin operation failed.", { code: normalizeError(error).code });
-    const known = error instanceof AppError && ["slugExists", "imageInUse", "invalidFile", "setupDone"].includes(error.message);
+    const known = error instanceof AppError && ["slugExists", "imageInUse", "invalidFile", "setupDone", "invalidIp"].includes(error.message);
     return { ok: false, message: t(known ? (error as AppError).message : "error") };
   }
 }

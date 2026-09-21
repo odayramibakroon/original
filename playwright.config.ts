@@ -13,7 +13,11 @@ export default defineConfig({
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
-  webServer: {
+  webServer: [{
+    command: "node e2e/storage-server.mjs",
+    url: "http://127.0.0.1:54329/health",
+    reuseExistingServer: false,
+  }, {
     command: "npm run dev -- --port 3101 --hostname 127.0.0.1",
     url: "http://127.0.0.1:3101/login",
     timeout: 120000,
@@ -26,6 +30,9 @@ export default defineConfig({
       NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
       FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
       FIRESTORE_EMULATOR_HOST: "127.0.0.1:8080",
+      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54329",
+      SUPABASE_SECRET_KEY: "local-storage-fixture-only",
+      SUPABASE_MEDIA_BUCKET: "site-media",
     },
-  },
+  }],
 });

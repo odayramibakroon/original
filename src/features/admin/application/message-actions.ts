@@ -8,6 +8,16 @@ import { getAdminDb } from "@/core/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { messageIdSchema } from "../infrastructure/messages";
 import { logger } from "@/core/logger";
+import { adminAction } from "@/core/auth/admin-action";
+import { deleteContactMessages } from "../infrastructure/messages";
+
+export async function deleteMessages(input: unknown) {
+  return adminAction(async () => {
+    const result = await deleteContactMessages(input);
+    revalidatePath("/admin"); revalidatePath("/admin/messages", "layout");
+    return result;
+  }, "deleted");
+}
 
 export async function updateMessageStatus(id: unknown, status: unknown) {
   const t = await getTranslations();

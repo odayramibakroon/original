@@ -6,6 +6,7 @@ import { normalizeError, ErrorCode } from "@/core/errors";
 import { deliverContactNotification } from "@/features/notifications/application/deliver-contact-notification";
 import { logger } from "@/core/logger";
 import { FirestoreContactRepository } from "@/features/contact/infrastructure/firestore-contact-repository";
+import { getRequestIp } from "@/core/network/request-ip";
 
 export type ContactActionState = {
   ok: boolean;
@@ -30,7 +31,7 @@ export async function submitContactMessage(
   let id: string;
   try {
     const repository = new FirestoreContactRepository();
-    id = await repository.create(parsed.data, locale);
+    id = await repository.create(parsed.data, locale, await getRequestIp());
   } catch (error) {
     const appError = normalizeError(error, ErrorCode.DATABASE_ERROR);
     logger.error("Failed to submit contact message.", {
@@ -39,7 +40,7 @@ export async function submitContactMessage(
 
     return {
       ok: false,
-      message: t(appError.code === ErrorCode.RATE_LIMITED ? "contact.rateLimited" : "common.error"),
+      message: t(appError.message === "dailyContactLimit" ? "contact.dailyLimit" : appError.message === "contactBlocked" ? "contact.blocked" : appError.code === ErrorCode.RATE_LIMITED ? "contact.rateLimited" : "common.error"),
     };
   }
 

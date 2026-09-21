@@ -15,13 +15,15 @@
     "test:setup": "node --import tsx --test scripts/check-services.test.mjs",
     "setup:site": "node --conditions=react-server --import tsx scripts/setup-site.ts",
     "test:media:live": "node --conditions=react-server --import tsx scripts/verify-live-media.ts",
-    "setup:admin": "node --conditions=react-server --import tsx scripts/setup-admin.ts"
+    "setup:admin": "node --conditions=react-server --import tsx scripts/setup-admin.ts",
+    "test:integration": "node --conditions=react-server --import tsx --test scripts/test-contact-admin.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@supabase/supabase-js": "^2.116.0",
     "firebase": "^12.19.0",
     "firebase-admin": "^13.10.0",
+    "ipaddr.js": "^2.5.0",
     "lucide-react": "^1.47.0",
     "negotiator": "^1.1.0",
     "next": "16.3.5",

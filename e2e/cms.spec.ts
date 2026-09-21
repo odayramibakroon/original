@@ -88,7 +88,7 @@ test("edits bilingual content, manages branches and settings", async ({ page }) 
   expect(branches[before - 1].sortOrder).toBe(before - 1);
   await page.goto("/admin/settings");
   await page.locator('[name="seoTitle.en"]').fill("Factory test title");
-  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await page.locator(".cms-form").getByRole("button", { name: "Save changes", exact: true }).click();
   await expect(page.locator(".cms-form-footer").getByRole("status")).toHaveText("Changes saved.");
   await page.goto("/"); await expect(page).toHaveTitle("Factory test title");
   await page.goto("/admin");
