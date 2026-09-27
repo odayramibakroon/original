@@ -38,6 +38,16 @@ for (const locale of ["ar-SA", "en-US"]) {
     await expect(page.locator(".hero-mobile-image-stage")).toHaveCSS("position", "absolute");
     await page.screenshot({ path: `test-results/home-${locale}-mobile.png`, caret: "initial" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const footerColumns = await page.locator(".footer-column").evaluateAll((columns) => columns.map((column) => {
+      const { x, y } = column.getBoundingClientRect();
+      return { x, y };
+    }));
+    expect(footerColumns).toHaveLength(4);
+    expect(footerColumns[0].y).toBe(footerColumns[1].y);
+    expect(footerColumns[2].y).toBe(footerColumns[3].y);
+    expect(footerColumns[2].y).toBeGreaterThan(footerColumns[0].y);
+    expect(footerColumns[0].x).toBe(footerColumns[2].x);
+    expect(footerColumns[1].x).toBe(footerColumns[3].x);
     await page.locator(".menu-btn").click();
     await expect(page.locator(".mobile-menu")).toHaveClass(/open/);
     await page.locator('.mobile-menu a[href="#contact"]').click();

@@ -1122,7 +1122,16 @@ html[dir="ltr"] .hero-card { left: auto; right: min(8vw, 120px); }
   }
 
   .footer-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-column {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-column svg {
+    flex-shrink: 0;
   }
 
   .footer-bottom {
