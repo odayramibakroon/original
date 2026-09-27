@@ -254,8 +254,6 @@
 
 .hero {
   --hero-bg-alpha: 0;
-  --hero-content-y: 0px;
-  --hero-image-y: 0px;
   align-items: center;
   background:
     linear-gradient(
@@ -292,8 +290,6 @@
   margin: auto;
   max-width: 1180px;
   position: relative;
-  transform: translateY(var(--hero-content-y));
-  transition: transform 0.12s linear;
   width: 100%;
   z-index: 2;
 }
@@ -638,7 +634,12 @@
 .contact-form input[type="tel"][dir="ltr"] { direction: ltr; text-align: left; }
 .contact-phone-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; }
 .contact-phone-fields label, .contact-phone-fields input, .contact-phone-fields select { min-width: 0; width: 100%; }
-.contact-phone-fields select { font-size: 12px; padding-inline: 10px; cursor: pointer; }
+.contact-country { position: relative; }
+.contact-phone-fields select { appearance: none; font-size: 12px; padding-inline: 10px; cursor: pointer; color: transparent; }
+.contact-country-value { position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 14px; font-size: 14px; pointer-events: none; }
+.contact-country-value strong { font-weight: 600; }
+.contact-country-value svg { margin-left: auto; flex-shrink: 0; }
+.contact-country select:disabled + .contact-country-value { opacity: 0.6; }
 .contact-phone-fields option { color: var(--color-text); background: var(--color-white); }
 
 .language-switcher { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; font-size: 12px; }
@@ -971,24 +972,23 @@ html[dir="ltr"] .hero-card { left: auto; right: min(8vw, 120px); }
   }
 
   .hero {
-    background: var(--color-dark);
-    display: block;
-    min-height: 148svh;
-    padding: 0 20px 76px;
+    background: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: max(780px, calc(100svh - 28px));
+    padding: 92px 20px 28px;
   }
 
   .hero::after {
+    background: rgba(23, 19, 16, var(--hero-overlay-limit, 0.52));
     z-index: 1;
   }
 
   .hero-mobile-image-stage {
     display: block;
-    height: 100svh;
-    margin: 0 -20px;
-    position: sticky;
-    top: 0;
-    transform: translateY(var(--hero-image-y));
-    transition: transform 0.12s linear;
+    position: absolute;
+    inset: 0;
     z-index: 0;
   }
 
@@ -997,26 +997,36 @@ html[dir="ltr"] .hero-card { left: auto; right: min(8vw, 120px); }
   }
 
   .hero-content {
-    margin-top: -30svh;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin: 0;
     position: relative;
   }
 
   .hero-badge {
+    align-self: flex-start;
     font-size: 11px;
+    margin-bottom: 14px;
   }
 
   .hero h1 {
-    font-size: 44px;
+    font-size: 32px;
     max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .hero-text {
     font-size: 13px;
+    line-height: 1.8;
+    margin-top: 12px;
     max-width: 100%;
   }
 
   .hero-actions {
     gap: 10px;
+    margin-top: auto;
+    padding-top: 36px;
   }
 
   .primary-btn,
@@ -1026,9 +1036,15 @@ html[dir="ltr"] .hero-card { left: auto; right: min(8vw, 120px); }
   }
 
   .hero-card {
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--color-glass-border);
+    border-radius: 0;
+    backdrop-filter: none;
     bottom: auto;
     left: auto;
-    margin-top: 28px;
+    margin-top: 20px;
+    padding: 16px 0 0;
     max-width: none;
     position: relative;
   }

@@ -1,9 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { useMobileHeroScroll } from "@/features/home/presentation/hooks/useMobileHeroScroll";
 
 type HeroProps = {
   hero: {
@@ -24,8 +21,6 @@ type HeroProps = {
 };
 
 export function Hero({ hero }: HeroProps) {
-  useMobileHeroScroll();
-
   return (
     <section className="hero" id="home" style={{ "--hero-desktop-image": `url(${JSON.stringify(hero.desktopImage)})`, "--hero-overlay-limit": hero.overlayOpacity } as CSSProperties}>
       <div className="hero-mobile-image-stage" aria-hidden="true">

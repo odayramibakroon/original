@@ -7,7 +7,7 @@ import { inMemoryPersistence, setPersistence, signInWithEmailAndPassword, signOu
 import { LogIn } from "lucide-react";
 import { getFirebaseAuth } from "@/core/firebase/client";
 import { createAdminSession } from "../application/auth-actions";
-import { syncCurrentPush } from "@/features/notifications/presentation/sync-current-push";
+import { syncCurrentPush } from "@/features/notifications/application/sync-current-push";
 import { logger } from "@/core/logger";
 
 export function LoginForm({ next, configured }: { next: string; configured: boolean }) {

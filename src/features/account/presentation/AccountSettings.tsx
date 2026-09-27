@@ -9,7 +9,7 @@ import { KeyRound, LogOut, Eye, EyeOff } from "lucide-react";
 import { passwordSchema, type PasswordInput } from "../domain/password-schema";
 import { changePassword } from "../application/change-password";
 import { signOutOtherDevices } from "../application/account-actions";
-import { syncCurrentPush } from "@/features/notifications/presentation/sync-current-push";
+import { syncCurrentPush } from "@/features/notifications/application/sync-current-push";
 import { Dialog } from "@/shared/components/Dialog";
 
 export function AccountSettings({ uid, email }: { uid: string; email: string }) {

@@ -6,6 +6,11 @@
 .catalog-filters .catalog-search { flex: 1 1 220px; display: flex; align-items: center; position: relative; }
 .catalog-search svg { position: absolute; inset-inline-start: 14px; }
 .catalog-search input { padding-inline-start: 42px; width: 100%; }
+.catalog-search .spin { animation: catalog-search-spin 1s linear infinite; }
+@keyframes catalog-search-spin { to { transform: rotate(360deg); } }
+.catalog-clear { display: grid; place-items: center; width: 46px; height: 46px; flex-shrink: 0; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-white); color: var(--color-text); cursor: pointer; }
+.catalog-clear:disabled { opacity: 0.45; cursor: default; }
+.catalog-clear:focus-visible { outline: 2px solid var(--color-orange); outline-offset: 2px; }
 .catalog-count { font-size: 13px; color: var(--color-muted); margin-block: 22px; }
 .catalog-empty { padding: 60px 0; }
 .catalog-pagination { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 32px; }
@@ -36,7 +41,7 @@ html[dir="rtl"] .contact-form input[type="email"] { text-align: right; }
   .catalog-main { padding: 110px 0 60px; }
   .catalog-title { font-size: 28px; }
   .catalog-filters { gap: 12px; }
-  .catalog-filters > label:not(.catalog-search) { flex: 1 1 140px; }
+  .catalog-filters > label:not(.catalog-search) { flex: 1 1 120px; }
   .catalog-filters .catalog-search { flex-basis: 100%; }
   .catalog-filters select { width: 100%; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }

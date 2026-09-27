@@ -24,6 +24,18 @@ for (const locale of ["ar-SA", "en-US"]) {
     const page = await context.newPage();
     await page.goto("/");
     await page.locator(".hero-mobile-image").evaluate((image: HTMLImageElement) => image.decode());
+    await expect(page.locator(".hero-card")).toHaveCSS("opacity", "1");
+    const hero = await page.locator(".hero").boundingBox();
+    const image = await page.locator(".hero-mobile-image").boundingBox();
+    expect(Math.abs(image!.height - hero!.height)).toBeLessThan(2);
+    expect(hero!.height).toBeLessThan(844);
+    const nav = await page.locator(".nav").boundingBox();
+    const content = await page.locator(".hero-content").boundingBox();
+    const quality = await page.locator(".hero-card").boundingBox();
+    expect(content!.y).toBeGreaterThan(nav!.y + nav!.height);
+    expect(quality!.y).toBeGreaterThanOrEqual(content!.y + content!.height);
+    expect(quality!.y + quality!.height).toBeLessThan(image!.y + image!.height);
+    await expect(page.locator(".hero-mobile-image-stage")).toHaveCSS("position", "absolute");
     await page.screenshot({ path: `test-results/home-${locale}-mobile.png`, caret: "initial" });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.locator(".menu-btn").click();
@@ -46,6 +58,38 @@ for (const locale of ["ar-SA", "en-US"]) {
     await context.close();
   });
 }
+
+test("mobile hero image covers all text on narrow and large phones without a black tail", async ({ browser }) => {
+  for (const locale of ["ar-SA", "en-US"]) {
+    const context = await browser.newContext({ locale });
+    const page = await context.newPage();
+    await page.goto("/");
+    for (const viewport of [{ width: 320, height: 640 }, { width: 430, height: 932 }]) {
+      await page.setViewportSize(viewport);
+      await page.locator(".hero-card").scrollIntoViewIfNeeded();
+      await expect(page.locator(".hero-card")).toHaveCSS("opacity", "1");
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      const hero = await page.locator(".hero").boundingBox();
+      const image = await page.locator(".hero-mobile-image").boundingBox();
+      const quality = await page.locator(".hero-card").boundingBox();
+      const description = await page.locator(".hero-text").boundingBox();
+      const actions = await page.locator(".hero-actions a").first().boundingBox();
+      expect(Math.abs(image!.height - hero!.height)).toBeLessThan(2);
+      expect(quality!.y + quality!.height).toBeLessThan(hero!.height);
+      expect(description!.y + description!.height).toBeLessThan(image!.height * 0.44);
+      expect(actions!.y).toBeGreaterThan(image!.height * 0.72);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.locator(".hero-mobile-image").evaluate((image: HTMLImageElement) => image.decode());
+      await page.screenshot({ path: `test-results/hero-overlay-${locale}-${viewport.width}.png`, animations: "disabled" });
+      await page.evaluate(() => window.scrollTo({ top: 250, behavior: "instant" }));
+      const shiftedHero = await page.locator(".hero").boundingBox();
+      const shiftedImage = await page.locator(".hero-mobile-image").boundingBox();
+      expect(Math.abs(shiftedHero!.y - shiftedImage!.y)).toBeLessThan(2);
+      expect(Math.abs(shiftedHero!.height - shiftedImage!.height)).toBeLessThan(2);
+    }
+    await context.close();
+  }
+});
 
 test("protects admin routes and cron from anonymous requests", async ({ page, request }) => {
   await page.goto("/admin/messages/AAAAAAAAAAAAAAAAAAAA");

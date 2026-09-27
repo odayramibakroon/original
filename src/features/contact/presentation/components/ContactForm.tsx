@@ -1,8 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { ChevronDown } from "lucide-react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import {
   createContactFormSchema,
@@ -10,10 +11,11 @@ import {
   type ContactFormFields,
 } from "@/core/validation/contact";
 import { submitContactMessage } from "@/features/contact/application/submit-contact-message";
-import { DEFAULT_PHONE_COUNTRY, PHONE_COUNTRIES, parseContactPhone } from "@/core/utils/phone";
-import { getCountryCallingCode } from "libphonenumber-js/min";
+import { DEFAULT_PHONE_COUNTRY, parseContactPhone } from "@/core/utils/phone";
+import type { CountryCode } from "libphonenumber-js/min";
 
 type ContactFormProps = {
+  countries: Array<{ code: CountryCode; name: string; dial: string }>;
   labels: {
     namePlaceholder: string;
     emailPlaceholder: string;
@@ -26,15 +28,11 @@ type ContactFormProps = {
   };
 };
 
-export function ContactForm({ labels }: ContactFormProps) {
+export function ContactForm({ labels, countries }: ContactFormProps) {
   const locale = useLocale();
   const messages = useMessages();
   const t = useTranslations("common");
   const contact = useTranslations("contact");
-  const countries = useMemo(() => {
-    const names = new Intl.DisplayNames([locale], { type: "region" });
-    return PHONE_COUNTRIES.map((code) => ({ code, name: names.of(code) || code, dial: getCountryCallingCode(code) })).sort((a, b) => a.name.localeCompare(b.name, locale));
-  }, [locale]);
   const schema = createContactFormSchema(messages.validation as Parameters<typeof createContactFormSchema>[0]);
   const [isPending, startTransition] = useTransition();
   const [resultMessage, setResultMessage] = useState<string | null>(null);
@@ -46,12 +44,15 @@ export function ContactForm({ labels }: ContactFormProps) {
     handleSubmit,
     reset,
     setValue,
-    formState: { errors },
+    control,
+    formState: { errors, isReady },
   } = useForm<ContactFormFields, unknown, ContactFormInput>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     defaultValues: { country: DEFAULT_PHONE_COUNTRY, name: "", email: "", phone: "", message: "" },
   });
+  const country = useWatch({ control, name: "country" });
+  const selectedCountry = countries.find(({ code }) => code === country);
 
   function onSubmit(values: ContactFormInput) {
     setResultMessage(null);
@@ -76,6 +77,7 @@ export function ContactForm({ labels }: ContactFormProps) {
         <span className="sr-only">{labels.namePlaceholder}</span>
         <input
           type="text"
+          disabled={!isReady || isPending}
           autoComplete="name"
           placeholder={labels.namePlaceholder}
           aria-invalid={Boolean(errors.name)}
@@ -88,7 +90,7 @@ export function ContactForm({ labels }: ContactFormProps) {
 
       <label>
         <span className="sr-only">{labels.emailPlaceholder}</span>
-        <input type="email" inputMode="email" autoComplete="email" dir="ltr"
+        <input type="email" inputMode="email" autoComplete="email" dir="ltr" disabled={!isReady || isPending}
           placeholder={labels.emailPlaceholder} aria-invalid={Boolean(errors.email)}
           aria-describedby={errors.email ? "contact-email-error" : undefined} {...register("email")} />
         {errors.email && <small id="contact-email-error" className="form-error">{errors.email.message}</small>}
@@ -96,16 +98,22 @@ export function ContactForm({ labels }: ContactFormProps) {
 
       <div>
         <div className="contact-phone-fields">
-        <label className="contact-country">
+        <label className="contact-country" title={selectedCountry && `${selectedCountry.name} (+${selectedCountry.dial})`}>
           <span className="sr-only">{contact("countryCode")}</span>
-          <select autoComplete="tel-country-code" aria-label={contact("countryCode")} disabled={isPending} {...register("country")}>
+          <select autoComplete="tel-country-code" aria-label={contact("countryCode")} disabled={!isReady || isPending} {...register("country")}>
             {countries.map(({ code, name, dial }) => <option key={code} value={code}>{name} (+{dial})</option>)}
           </select>
+          <span className="contact-country-value" aria-hidden="true" dir="ltr">
+            <span>{selectedCountry?.code}</span>
+            <strong>+{selectedCountry?.dial}</strong>
+            <ChevronDown size={16} />
+          </span>
         </label>
         <label className="contact-national-phone">
         <span className="sr-only">{labels.phonePlaceholder}</span>
         <input
           type="tel"
+          disabled={!isReady || isPending}
           dir={locale === "ar" ? "rtl" : "ltr"}
           inputMode="tel"
           autoComplete="tel-national"
@@ -133,6 +141,7 @@ export function ContactForm({ labels }: ContactFormProps) {
       <label>
         <span className="sr-only">{labels.messagePlaceholder}</span>
         <textarea
+          disabled={!isReady || isPending}
           placeholder={labels.messagePlaceholder}
           aria-invalid={Boolean(errors.message)}
           {...register("message")}
@@ -146,7 +155,7 @@ export function ContactForm({ labels }: ContactFormProps) {
         <p role="status" className={`form-result ${resultType || ""}`}>{resultMessage}</p>
       ) : null}
 
-      <button type="submit" className="primary-btn" disabled={isPending}>
+      <button type="submit" className="primary-btn" disabled={!isReady || isPending}>
         {isPending ? labels.sending : labels.submit}
       </button>
     </form>

@@ -3,7 +3,7 @@ const mocks = vi.hoisted(() => ({ signIn: vi.fn(), update: vi.fn(), session: vi.
 vi.mock("firebase/auth", () => ({ inMemoryPersistence: {}, setPersistence: vi.fn(), signInWithEmailAndPassword: mocks.signIn, updatePassword: mocks.update, signOut: mocks.signOut }));
 vi.mock("@/core/firebase/client", () => ({ getFirebaseAuth: () => ({}) }));
 vi.mock("@/features/admin/application/auth-actions", () => ({ createAdminSession: mocks.session }));
-vi.mock("@/features/notifications/presentation/sync-current-push", () => ({ syncCurrentPush: mocks.push }));
+vi.mock("@/features/notifications/application/sync-current-push", () => ({ syncCurrentPush: mocks.push }));
 vi.mock("@/core/logger", () => ({ logger: { warn: vi.fn() } }));
 import { changePassword } from "./change-password";
 const input = { currentPassword: "Old-password-123", newPassword: "New-password-456", confirmPassword: "New-password-456" };

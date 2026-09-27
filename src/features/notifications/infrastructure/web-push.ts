@@ -63,7 +63,10 @@ export async function getActiveSubscriptions() {
       active = active && Boolean(session && session.uid === subscription.uid && session.version === owner.version && session.authTime * 1000 >= owner.tokensValidAfter);
     } else active = active && !subscription.sessionId && owner.version === 0;
     if (active) result.push({ id: document.id, subscription });
-    else await document.ref.delete();
+    else await db.runTransaction(async (transaction) => {
+      const current = await transaction.get(document.ref);
+      if (current.exists && current.updateTime?.isEqual(document.updateTime)) transaction.delete(document.ref);
+    });
   }
   return result;
 }

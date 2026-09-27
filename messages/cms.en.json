@@ -135,7 +135,7 @@
     "mobileImage": "Mobile image",
     "productsHref": "Products button link",
     "contactHref": "Contact button link",
-    "overlayOpacity": "Mobile image overlay on scroll",
+    "overlayOpacity": "Mobile image background dimming",
     "kicker": "Eyebrow",
     "title": "Title",
     "items": "Items",

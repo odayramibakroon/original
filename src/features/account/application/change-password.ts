@@ -2,7 +2,7 @@
 import { inMemoryPersistence, setPersistence, signInWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
 import { getFirebaseAuth } from "@/core/firebase/client";
 import { createAdminSession } from "@/features/admin/application/auth-actions";
-import { syncCurrentPush } from "@/features/notifications/presentation/sync-current-push";
+import { syncCurrentPush } from "@/features/notifications/application/sync-current-push";
 import { passwordSchema, type PasswordInput } from "../domain/password-schema";
 import { logger } from "@/core/logger";
 

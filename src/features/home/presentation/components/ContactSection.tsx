@@ -1,4 +1,7 @@
 import { ContactForm } from "@/features/contact/presentation/components/ContactForm";
+import { getLocale } from "next-intl/server";
+import { getCountryCallingCode } from "libphonenumber-js/min";
+import { PHONE_COUNTRIES } from "@/core/utils/phone";
 
 type ContactSectionProps = {
   contact: {
@@ -16,7 +19,10 @@ type ContactSectionProps = {
   };
 };
 
-export function ContactSection({ contact }: ContactSectionProps) {
+export async function ContactSection({ contact }: ContactSectionProps) {
+  const locale = await getLocale();
+  const names = new Intl.DisplayNames([locale], { type: "region" });
+  const countries = PHONE_COUNTRIES.map((code) => ({ code, name: names.of(code) || code, dial: getCountryCallingCode(code) })).sort((a, b) => a.name.localeCompare(b.name, locale));
   return (
     <section className="contact" id="contact">
       <div className="contact-inner">
@@ -26,7 +32,7 @@ export function ContactSection({ contact }: ContactSectionProps) {
           <p>{contact.text}</p>
         </div>
 
-        <ContactForm labels={contact} />
+        <ContactForm labels={contact} countries={countries} />
       </div>
     </section>
   );

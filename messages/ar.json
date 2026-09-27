@@ -23,7 +23,7 @@
     "rateLimited": "وصلتنا عدة رسائل منك. يرجى الانتظار قليلًا قبل المحاولة مجددًا."
   },
   "admin": {
-    "markSelectedRead": "تحديد المحدد كمقروء",
+    "markSelectedRead": "تعليم المحدد كمقروء",
     "markedRead": "تم تعليم {count} رسالة كمقروءة.",
     "openMessageFrom": "فتح رسالة {name}",
     "ip": "عنوان IP",

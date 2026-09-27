@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Search, SlidersHorizontal } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/core/i18n/localized-text";
 import { getPublicShell } from "@/features/site-settings/application/get-public-shell";
@@ -8,6 +7,7 @@ import { toProductViewModel } from "@/features/products/application/get-products
 import { filterProducts } from "@/features/products/application/filter-products";
 import { PublicFrame } from "@/shared/components/PublicFrame";
 import { ProductGrid } from "@/features/products/presentation/components/ProductGrid";
+import { CatalogFilters } from "@/features/products/presentation/components/CatalogFilters";
 
 export async function generateMetadata() { return { title: (await getTranslations("catalog"))("title") }; }
 
@@ -25,18 +25,8 @@ export default async function Products({ searchParams }: { searchParams: Promise
   const pageUrl = (number: number) => `/products?${new URLSearchParams({ q: query, category, sort, page: String(number) })}`;
   return <PublicFrame shell={shell}><div className="container">
     <h1 className="catalog-title">{t("title")}</h1>
-    <form key={JSON.stringify([query, category, sort])} method="get" action="/products" className="catalog-filters">
-      <label className="catalog-search"><span className="sr-only">{t("search")}</span><Search size={18} aria-hidden="true" />
-        <input type="search" name="q" defaultValue={query} placeholder={t("search")} maxLength={200} />
-      </label>
-      <label><span id="catalog-category-label">{t("category")}</span><select aria-labelledby="catalog-category-label" name="category" defaultValue={category}><option value="">{t("allCategories")}</option>
-        {categories.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-      </select></label>
-      <label><span id="catalog-sort-label">{t("sort")}</span><select aria-labelledby="catalog-sort-label" name="sort" defaultValue={sort}><option value="">{t("defaultSort")}</option><option value="name-asc">{t("nameAsc")}</option><option value="name-desc">{t("nameDesc")}</option></select></label>
-      <button className="btn btn-orange" type="submit"><SlidersHorizontal size={17} />{t("searchButton")}</button>
-      {(query || category || sort) && <Link href="/products">{t("clear")}</Link>}
-    </form>
-    <p className="catalog-count">{t("results", { count: filtered.length })}</p>
+    <CatalogFilters initial={{ q: query, category, sort }} categories={categories} />
+    <p className="catalog-count" role="status">{t("results", { count: filtered.length })}</p>
     {filtered.length ? <ProductGrid products={filtered.slice((page - 1) * 16, page * 16)} /> : <p className="catalog-empty">{t("empty")}</p>}
     {pages > 1 && <nav className="catalog-pagination">
       {page > 1 && <Link className="btn" href={pageUrl(page - 1)}>{t("previous")}</Link>}

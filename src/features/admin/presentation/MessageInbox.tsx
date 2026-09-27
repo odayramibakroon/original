@@ -10,6 +10,7 @@ import { deleteMessages, markMessagesRead } from "../application/message-actions
 import { Dialog } from "@/shared/components/Dialog";
 import { DeleteButton } from "@/shared/components/DeleteButton";
 import { IpBlockButton } from "@/features/site-settings/presentation/OperationalSettings";
+import { useLiveFilters } from "@/shared/hooks/useLiveFilters";
 
 export function MessageInbox({ messages, next, before, filter, blockedIps }: {
   messages: AdminMessage[]; next: string | null; before: number; filter: MessageQuery; blockedIps: string[];
@@ -18,6 +19,7 @@ export function MessageInbox({ messages, next, before, filter, blockedIps }: {
   const c = useTranslations("cms");
   const locale = useLocale();
   const router = useRouter();
+  const search = useLiveFilters({ q: filter.q, status: filter.status }, messageListHref);
   const [selected, setSelected] = useState<string[]>([]);
   const [mode, setMode] = useState<"selected" | "all" | null>(null);
   const [pending, startTransition] = useTransition();
@@ -45,13 +47,12 @@ export function MessageInbox({ messages, next, before, filter, blockedIps }: {
     });
   }
   return <>
-    <form className="admin-toolbar" action="/admin/messages" key={JSON.stringify(filter)}>
-      <label className="admin-search"><Search size={17} /><input type="search" name="q" defaultValue={filter.q} maxLength={120} aria-label={t("searchMessages")} placeholder={t("searchMessages")} /></label>
-      <select name="status" aria-label={t("status")} defaultValue={filter.status}>
+    <form className="admin-toolbar" role="search" aria-busy={search.pending} {...search.formProps}>
+      <label className="admin-search">{search.pending ? <LoaderCircle size={17} className="spin" /> : <Search size={17} />}<input type="search" name="q" value={search.values.q} onChange={(event) => search.change({ q: event.target.value })} maxLength={120} aria-label={t("searchMessages")} placeholder={t("searchMessages")} /></label>
+      <select name="status" aria-label={t("status")} value={search.values.status} onChange={(event) => search.change({ status: event.target.value as MessageQuery["status"] }, true)}>
         <option value="all">{t("allStatuses")}</option>{["new", "read", "replied"].map((status) => <option key={status} value={status}>{t(status)}</option>)}
       </select>
-      <button className="admin-button"><Search size={17} />{c("search")}</button>
-      {(filter.q || filter.status !== "all") && <Link className="admin-icon" href="/admin/messages" aria-label={t("clearSearch")} title={t("clearSearch")}><X size={17} /></Link>}
+      <button type="button" className="admin-icon" disabled={!search.values.q && search.values.status === "all"} onClick={() => search.change({ q: "", status: "all" }, true)} aria-label={t("clearSearch")} title={t("clearSearch")}><X size={17} /></button>
     </form>
     <div className="admin-toolbar message-delete-tools">
       <span>{t("selectedMessages", { count: chosen.length })}</span>

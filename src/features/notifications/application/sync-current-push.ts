@@ -1,5 +1,5 @@
 "use client";
-import { updatePushSubscription } from "../application/subscription-actions";
+import { updatePushSubscription } from "./subscription-actions";
 
 export async function syncCurrentPush() {
   if (!("serviceWorker" in navigator) || !("Notification" in window) || Notification.permission !== "granted") return true;
